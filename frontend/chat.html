@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SEO Labs Chatbot</title>
+
+<style>
+
+body{
+font-family: Arial;
+}
+
+#chatbox{
+width:350px;
+height:500px;
+border:1px solid #ccc;
+border-radius:10px;
+padding:10px;
+overflow-y:auto;
+}
+
+#userInput{
+width:75%;
+padding:10px;
+}
+
+button{
+padding:10px;
+}
+
+.message{
+margin:10px 0;
+}
+
+.user{
+color:blue;
+}
+
+.bot{
+color:green;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>SEO Labs Assistant 🤖</h2>
+
+<div id="chatbox"></div>
+
+<input id="userInput" placeholder="Ask something...">
+<button onclick="sendMessage()">Send</button>
+
+<script>
+
+async function sendMessage(){
+
+let input=document.getElementById("userInput")
+let message=input.value
+
+let chatbox=document.getElementById("chatbox")
+
+chatbox.innerHTML+=`<div class="message user"><b>You:</b> ${message}</div>`
+
+input.value=""
+
+let response=await fetch("http://127.0.0.1:5000/chat",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+message:message
+})
+
+})
+
+let data=await response.json()
+
+chatbox.innerHTML+=`<div class="message bot"><b>Bot:</b> ${data.response}</div>`
+
+chatbox.scrollTop=chatbox.scrollHeight
+
+}
+
+</script>
+
+</body>
+</html>
