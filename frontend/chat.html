@@ -1,68 +1,197 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SEO Labs Chatbot</title>
+
+<title>CHAT WITH MAYA</title>
 
 <style>
 
 body{
-font-family: Arial;
+font-family:Arial;
 }
 
-#chatbox{
+/* floating button */
+
+#chat-button{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#6878D6;
+color:white;
+border:none;
+border-radius:50%;
+width:60px;
+height:60px;
+font-size:24px;
+cursor:pointer;
+box-shadow:0px 4px 10px rgba(0,0,0,0.3);
+}
+
+/* chatbot window */
+
+#chat-container{
+display:none;
+position:fixed;
+bottom:90px;
+right:20px;
 width:350px;
 height:500px;
-border:1px solid #ccc;
-border-radius:10px;
+background:white;
+border-radius:12px;
+box-shadow:0px 4px 20px rgba(0,0,0,0.2);
+flex-direction:column;
+overflow:hidden;
+}
+
+/* header */
+
+#chat-header{
+background:#393A56;
+color:white;
+padding:15px;
+font-weight:bold;
+}
+
+/* chat messages */
+
+#chatbox{
+flex:1;
 padding:10px;
 overflow-y:auto;
+background:#f5f5f5;
 }
 
-#userInput{
-width:75%;
-padding:10px;
-}
-
-button{
-padding:10px;
-}
+/* message bubbles */
 
 .message{
 margin:10px 0;
+padding:8px 12px;
+border-radius:10px;
+max-width:75%;
 }
 
 .user{
-color:blue;
+background:#6878D6;
+color:white;
+margin-left:auto;
 }
 
 .bot{
-color:green;
+background:#e4e6eb;
+color:black;
+margin-right:auto;
+}
+
+/* input area */
+
+#input-area{
+display:flex;
+border-top:1px solid #ddd;
+}
+
+#userInput{
+flex:1;
+padding:10px;
+border:none;
+outline:none;
+}
+
+button{
+padding:10px 15px;
+border:none;
+background:#6878D6;
+color:white;
+cursor:pointer;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<h2>SEO Labs Assistant 🤖</h2>
+<button id="chat-button" onclick="toggleChat()">💬</button>
+
+<div id="chat-container">
+
+<div id="chat-header">
+CHAT WITH MAYA 🤖
+</div>
 
 <div id="chatbox"></div>
 
-<input id="userInput" placeholder="Ask something...">
+<div id="input-area">
+<input id="userInput" placeholder="Ask about our services...">
 <button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
 
 <script>
+
+
+
+function toggleChat(){
+
+let chat=document.getElementById("chat-container")
+
+if(chat.style.display==="flex"){
+
+chat.style.display="none"
+
+}else{
+
+chat.style.display="flex"
+
+showWelcomeMessage()
+
+}
+
+}
+
+/* welcome message */
+
+function showWelcomeMessage(){
+
+let chatbox=document.getElementById("chatbox")
+
+if(chatbox.innerHTML===""){
+
+chatbox.innerHTML+=`
+<div class="message bot">
+Hi 👋 I'm Maya from SEO Labs.<br>
+How can I help you today?
+</div>
+`
+
+}
+
+}
+
+/* send message */
 
 async function sendMessage(){
 
 let input=document.getElementById("userInput")
 let message=input.value
 
+if(message==="") return
+
 let chatbox=document.getElementById("chatbox")
 
-chatbox.innerHTML+=`<div class="message user"><b>You:</b> ${message}</div>`
+chatbox.innerHTML+=`<div class="message user">${message}</div>`
 
 input.value=""
+
+/* typing animation */
+
+let typing=document.createElement("div")
+typing.className="message bot"
+typing.id="typing"
+typing.innerHTML="Maya is typing..."
+chatbox.appendChild(typing)
+
+chatbox.scrollTop=chatbox.scrollHeight
 
 let response=await fetch("http://127.0.0.1:5000/chat",{
 
@@ -80,11 +209,29 @@ message:message
 
 let data=await response.json()
 
-chatbox.innerHTML+=`<div class="message bot"><b>Bot:</b> ${data.response}</div>`
+/* remove typing */
+
+document.getElementById("typing").remove()
+
+chatbox.innerHTML+=`<div class="message bot">${data.response}</div>`
 
 chatbox.scrollTop=chatbox.scrollHeight
 
 }
+
+/* press enter to send */
+
+document.getElementById("userInput").addEventListener("keypress",function(event){
+
+if(event.key==="Enter"){
+
+sendMessage()
+
+}
+
+})
+
+
 
 </script>
 

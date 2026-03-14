@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 from pinecone import Pinecone
 from langchain_pinecone import PineconeVectorStore
@@ -14,6 +15,7 @@ PINECONE_INDEX = os.getenv("PINECONE_INDEX")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
+CORS(app)
 
 # Embedding model (same used during ingestion)
 embeddings = HuggingFaceEmbeddings(
