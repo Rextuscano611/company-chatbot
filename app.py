@@ -1,4 +1,6 @@
 import os
+import csv
+import re
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -42,20 +44,71 @@ llm = ChatOpenAI(
 @app.route("/chat", methods=["POST"])
 def chat():
 
-    user_question = request.json["message"]
+    data = request.get_json()
+    user_message = data["message"]
+    message_lower = user_message.lower()
 
-    # Retrieve relevant documents
-    docs = retriever.invoke(user_question)
+    # -------- EXTRACT EMAIL --------
+    email_match = re.search(r'[\w\.-]+@[\w\.-]+', user_message)
 
-    context = "\n\n".join([doc.page_content for doc in docs])
+    # -------- EXTRACT WEBSITE --------
+    website_match = re.search(r'(https?://[^\s]+|www\.[^\s]+)', user_message)
+
+    # -------- EXTRACT NAME --------
+    name_match = re.search(r'Name\s*[:\-]\s*([A-Za-z]+)', user_message, re.IGNORECASE)
+    
+
+    if email_match:
+
+        email = email_match.group()
+        website = website_match.group() if website_match else ""
+        name = name_match.group(1).strip() if name_match else ""
+
+        # Create CSV with header if it doesn't exist
+        file_exists = os.path.isfile("leads.csv")
+
+        with open("leads.csv", "a", newline="") as file:
+            writer = csv.writer(file)
+
+            if not file_exists:
+                writer.writerow(["Name", "Email", "Website"])
+
+            writer.writerow([name, email, website])
+
+        return jsonify({
+            "response": "Thank you! Our team will contact you soon 🚀"
+        })
+
+    # -------- LEAD INTENT DETECTION --------
+    lead_keywords = [
+        "consultation",
+        "meeting",
+        "contact",
+        "talk to sales",
+        "seo service",
+        "hire",
+        "pricing"
+    ]
+
+    if any(word in message_lower for word in lead_keywords):
+
+        return jsonify({
+            "response": "Great! I'd love to connect you with our team.<br><br>Please share the following details:<br><br>Name:<br>Email:<br>Company / Website:"
+        })
+
+    # -------- NORMAL CHATBOT FLOW --------
+    docs = vectorstore.similarity_search(user_message)
+
+    context = "\n".join([doc.page_content for doc in docs])
 
     prompt = f"""
-Answer the question based only on the context below.
+You are Maya, an AI assistant for SEO Labs.
 
-Context:
+Use the following context to answer the question.
+
 {context}
 
-Question: {user_question}
+Question: {user_message}
 """
 
     response = llm.invoke(prompt)

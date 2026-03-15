@@ -8,39 +8,17 @@
 
 body{
 font-family:Arial;
-}
-
-/* floating button */
-
-#chat-button{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#6878D6;
-color:white;
-border:none;
-border-radius:50%;
-width:60px;
-height:60px;
-font-size:24px;
-cursor:pointer;
-box-shadow:0px 4px 10px rgba(0,0,0,0.3);
+margin:0;
 }
 
 /* chatbot window */
 
 #chat-container{
-display:none;
-position:fixed;
-bottom:90px;
-right:20px;
-width:350px;
-height:500px;
-background:white;
-border-radius:12px;
-box-shadow:0px 4px 20px rgba(0,0,0,0.2);
+display:flex;
 flex-direction:column;
-overflow:hidden;
+width:100%;
+height:100vh;
+background:white;
 }
 
 /* header */
@@ -110,8 +88,6 @@ cursor:pointer;
 
 <body>
 
-<button id="chat-button" onclick="toggleChat()">💬</button>
-
 <div id="chat-container">
 
 <div id="chat-header">
@@ -128,28 +104,6 @@ CHAT WITH MAYA 🤖
 </div>
 
 <script>
-
-
-
-function toggleChat(){
-
-let chat=document.getElementById("chat-container")
-
-if(chat.style.display==="flex"){
-
-chat.style.display="none"
-
-}else{
-
-chat.style.display="flex"
-
-showWelcomeMessage()
-
-}
-
-}
-
-/* welcome message */
 
 function showWelcomeMessage(){
 
@@ -168,7 +122,7 @@ How can I help you today?
 
 }
 
-/* send message */
+showWelcomeMessage()
 
 async function sendMessage(){
 
@@ -182,8 +136,6 @@ let chatbox=document.getElementById("chatbox")
 chatbox.innerHTML+=`<div class="message user">${message}</div>`
 
 input.value=""
-
-/* typing animation */
 
 let typing=document.createElement("div")
 typing.className="message bot"
@@ -209,8 +161,6 @@ message:message
 
 let data=await response.json()
 
-/* remove typing */
-
 document.getElementById("typing").remove()
 
 chatbox.innerHTML+=`<div class="message bot">${data.response}</div>`
@@ -219,19 +169,13 @@ chatbox.scrollTop=chatbox.scrollHeight
 
 }
 
-/* press enter to send */
-
 document.getElementById("userInput").addEventListener("keypress",function(event){
 
 if(event.key==="Enter"){
-
 sendMessage()
-
 }
 
 })
-
-
 
 </script>
 
